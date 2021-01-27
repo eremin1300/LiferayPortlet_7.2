@@ -54,18 +54,20 @@ public class PortletMVC extends MVCPortlet  {
     public void render(RenderRequest renderRequest, RenderResponse renderResponse)
             throws PortletException, IOException {
         String str = renderRequest.getRemoteUser();
+        if (str != null && !str.isEmpty() && !str.equals("")) {
 
         if(!resultFlag && !searchFlag) {
-            if (str != null && !str.isEmpty() && !str.equals("")) {
                 try {
                     User user = userLocalService.getUserById(Long.decode(str));
                     writeUsersList(user);
                 } catch (PortalException e) {
-                    e.printStackTrace();
+                    log.debug(e.getMessage());
                 }
-            } else UserModels.clear();
         }
-        else resultFlag = false;
+        }else {
+            UserModels.clear();
+            resultFlag = false;
+        }
         if (UserModels != null && UserModels.size() > 0) {
             renderRequest.setAttribute("users", UserModels);
         }
@@ -140,6 +142,7 @@ public class PortletMVC extends MVCPortlet  {
         ArrayList<UserModel> UserModelsTemp = new ArrayList<>();
         String keyword = ParamUtil.getString(actionRequest, "keyword");
         String str = actionRequest.getRemoteUser();
+        if (str != null && !str.isEmpty() && !str.equals("")) {
         if (keyword != null && keyword != "") {
             writeUsersList(userLocalService.getUserById(Long.decode(str)));
             for (UserModel usr: UserModels) {
@@ -155,6 +158,7 @@ public class PortletMVC extends MVCPortlet  {
             searchFlag = false;
             writeUsersList(userLocalService.getUserById(Long.decode(str)));
             actionResponse.setPortletMode(PortletMode.VIEW);
-        }
+        }}
+        else UserModels.clear();
     }
 }
